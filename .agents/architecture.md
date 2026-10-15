@@ -1,60 +1,64 @@
 # Architecture and contracts reference
 
-Read before changing architecture, module interfaces, state, or exports. The authoritative proposal is DEVELOPMENT_PLAN.md sections 3–4; record changes there. Paths below are planned until implemented.
+Authority: [system architecture](../Business_Sales_Purchase_Forecasting_System_Architecture.pdf), sections 4–6, 10, 12–13; [development plan](../DEVELOPMENT_PLAN.md), sections 3–5. This replaces the earlier teaching-app architecture context. Read before changing boundaries, orchestration, session state or exports.
 
 ## Module ownership
 
-All package paths are relative to `src/time_series_app/`.
+Package paths are relative to `src/forecasting_app/`, as specified in the architecture. Paths remain planned until implemented.
 
-| Path | Responsibility |
+| Path | Owner of behavior |
 | --- | --- |
-| `config.py` | Validated defaults, resource limits, supported frequencies and model controls |
-| `contracts.py` | Shared serializable settings/results, statuses, provenance, index invariants |
-| `ingestion.py` | CSV decoding/parsing, column mapping, source fingerprint and quality profile |
-| `preparation.py` | Explicit duplicate/gap/resampling rules, regular date grid, split-aware transformations |
-| `exploration.py` | Descriptive statistics, rolling summaries, eligible decomposition; no modeling input mutation |
-| `models/base.py` | Common fit/predict contract and candidate failure/warning handling |
-| `models/baselines.py` | Last-value and seasonal-naive adapters |
-| `models/arima.py` | statsmodels ARIMA adapter and supported intervals |
-| `models/exponential_smoothing.py` | Simple, Holt, Holt-Winters adapters and eligibility |
-| `evaluation.py` | Chronological windows/folds, aligned metrics, selection and frozen final test |
-| `forecasting.py` | Full-history refit of frozen configuration, future dates/horizon, forecast result |
-| `exports.py` | Plain CSV/JSON outputs, schema consistency and export safety |
-| `ui/state.py` | Session lifecycle, result keys, invalidation and reset |
-| `ui/upload.py`, `explore.py`, `evaluate.py`, `forecast.py` | Guided controls/presentation; call domain functions |
+| `ingestion.py` | CSV/Excel readers, worksheets, file/shape limits, UploadResult and parse diagnostics |
+| `detection.py` | Ranked date/sales/purchase candidates, score evidence, ambiguity and confirmation metadata |
+| `preprocessing.py` | Explicit parsing, transaction/summary semantics, duplicate/aggregation policy, calendar index, missing periods, provenance |
+| `analysis.py` | History/regularity/trend/seasonality/variability/value diagnostics and eligibility evidence |
+| `models/` | Common eligibility/fit/predict/optional-interval interface; baseline, ARIMA and smoothing adapters |
+| `evaluation.py` | Past-only windows/folds, metrics, candidate comparison, selection/adequacy evidence and failure records |
+| `service.py` | Request validation, confirmation gates, workflow sequencing, select/abstain, full-history refit and ForecastResponse |
+| `contracts.py` (proposed) | Shared typed requests, domain results, statuses and serializable metadata |
+| `config.py` (proposed) | Validated limits, heuristic thresholds, candidate/evaluation/adequacy policies |
+| `exports.py` (proposed) | Pure response-to-CSV/metadata serialization and safe text handling |
 
-`app.py` wires the UI. `data/examples/` contains synthetic fixtures. `tests/` holds domain and workflow checks. Keep environments, uploads, generated analyses, and large artifacts out of source control.
+Root `app.py` owns only Streamlit controls and display. `sample_data/` holds synthetic teaching inputs. `tests/` holds domain, integration and UI checks. Do not retain the superseded `src/time_series_app/` layout or move model-selection rules into UI helpers.
 
-## Contract checklist
+## Orchestration boundary
 
-- **DatasetProfile:** source label/fingerprint, columns, parsed count, range, invalid rows, duplicates, gaps, inferred cadence.
-- **PreparationSpec:** selected columns, date parsing, confirmed frequency/anchor, duplicate policy, gap policy and any resampling aggregation.
-- **PreparedSeries:** unique sorted datetime index, explicit cadence, finite numeric modeling values, provenance and warnings. Preserve missing evaluation truth in validation information so it blocks scoring rather than disappearing.
-- **EvaluationSpec:** validation/final-test horizons, primary metric, fixed fold boundaries when applicable, candidate configurations.
-- **ModelSpec:** family, exact parameters, seasonal period, eligibility constraints.
-- **ModelResult:** configuration identity, train boundaries, exact dated predictions, warnings/status/failure, metrics and runtime. Distinguish ineligible, failed, warning, and successful candidates.
-- **ForecastResult:** frozen selected configuration, refit range, exact future index, finite points and optional supported intervals with method/coverage.
-- **RunManifest:** dataset fingerprint, effective settings, split boundaries, package versions, result statuses, selection metric and export schema version.
+Preview can call engine ingestion/detection helpers; the forecast operation uses one explicit request to `service.forecast(request)`. The service verifies inputs/confirmations, prepares the selected target, analyzes eligibility, runs chronological evaluation, applies declared selection/quality rules, refits if accepted and assembles a response. Unresolved confirmation returns before model fitting.
 
-Use one owner for date-grid creation and consistent adapter contracts; do not let every model independently invent timestamps. Match indexes explicitly before arithmetic. Use stable configuration fingerprints rather than mutable object identity to key results.
+No engine dependency on Streamlit, widgets, sessions or UI-side cleaning. Stage progress can be a UI-independent callback/event. Avoid circular ownership: analysis supplies eligibility evidence, adapters enforce method constraints, evaluation compares, service coordinates and returns the outcome.
 
-## Session invalidation
+## Contracts and statuses
 
-| Changed input | Invalidate |
+| Object | Contract checklist |
 | --- | --- |
-| Dataset, columns, date parsing, cadence/anchor, duplicate/gap/resampling policy | Prepared data and every dependent exploration, evaluation, selection, test, forecast, export |
-| Validation/test boundaries or rolling folds | Comparisons, selection, final test, forecasts and dependent exports |
-| Candidate parameters/list or selection metric | Affected comparison/ranking, selection, final test, future forecasts and dependent exports |
-| Selected configuration | Final-test and future results tied to the old selection |
-| Future horizon | Future forecast and its exports only |
-| Display-only chart controls | Presentation only; analytical/export values remain identical |
+| UploadResult | Table, original source/columns, row count and warnings; proposed fingerprint and selected-sheet metadata |
+| ColumnCandidate | Original column identity, role, score/confidence semantics, evidence and alternatives; preserve duplicate-header identity deliberately |
+| ForecastRequest | Validated table/reference, resolved date and selected sales/purchase target, confirmation decisions, row semantics, aggregation/duplicates/gaps, frequency, horizon, evaluation and adequacy settings |
+| SeriesData | One target, frequency and anchors, values/exact index, aggregation, missing periods, diagnostics, exclusions/transformation provenance |
+| EvaluationResult | Candidate/configuration, exact train/validation fold dates, fold/aggregate metrics, status, errors/warnings and baseline evidence |
+| ForecastResponse | Explicit status, selected model or none, forecast rows, comparison, diagnostics, warnings, run configuration and versions |
 
-Include all effective upstream settings in reuse keys. In-memory final results and exports must reference the same immutable run specification. A new analytical run must not inherit a previous run's claim of untouched test evaluation.
+The five architecture-named objects are UploadResult, ColumnCandidate, SeriesData, EvaluationResult and ForecastResponse. ForecastRequest elaborates architecture section 5.1. Use small dataclasses/typed classes or justified validation models; framework choice is not prescribed.
 
-## Exports and data lifecycle
+Keep distinct: success, success with cautions, needs confirmation, insufficient history, no eligible model. Proposed additional `no_reliable_forecast` identifies quality failure after fitting; invalid upload/request and refit failures need controlled explanations too. No forecast rows must not imply no diagnostics. Keep candidate errors inspectable and never mislabel “all fit but too poor” as “not eligible.”
 
-Provide prepared observations with provenance, candidate validation/final-test predictions and metrics, future forecasts, and a JSON manifest. Prediction rows identify timestamp, actual where available, prediction, configuration ID and segment. Identify optional interval columns and coverage; do not fill absent intervals with invented values.
+Intermediate missingness must survive until resolved; only a fit-ready model input must be finite. Preserve raw rows separately. Stable settings include target and business semantics, not only model parameters. Fingerprints identify a source but cannot reconstruct missing source data.
 
-Keep dataset fingerprints for identification; they do not replace the source observations needed to reproduce a run. Document that a user must retain their own source CSV. Keep numerical tolerances and package versions explicit; do not promise byte-identical statistical fits across environments.
+## State invalidation
 
-Synchronous execution is the first architecture. Persistent analyses, API services, multi-user deployment and background workers require a recorded decision with operational/data ownership implications, not incremental hidden additions.
+| Change | Invalidate |
+| --- | --- |
+| Upload or worksheet | Table-derived candidates, mappings/confirmations where no longer valid, preparation and all results/exports |
+| Selected target/date/target column | Target-specific preparation, diagnostics, evaluation, selection and forecast |
+| Row semantics, date/numeric conventions, duplicate/gap/aggregation rule, cadence/anchor | Every downstream prepared result, comparison, forecast and export |
+| Candidates, folds, primary metric, adequacy threshold/policy | Affected evaluation, selection, forecast and export |
+| Horizon | Forecast/export and evaluation if horizon determines fold windows or scoring |
+| Display-only controls | Presentation only; underlying scored/exported values stay identical |
+
+Run keys include source fingerprint, sheet, mapping, target, effective policies and evaluation settings. One dataset may support separate sales/purchase runs, but state must not cross their identities. Clearing a session clears in-memory user data/results; avoid process-global mutable caches.
+
+## Exports and deployment
+
+User-initiated CSV download is required; optional comparison/metadata downloads should reuse the same response. Forecast rows have exact timestamps, point values and optional verified interval columns; include target/units where known. Provenance includes mapping, frequency, aggregation, missing-period policy, windows, metric definitions, configuration and software versions.
+
+Do not save uploads/forecasts automatically. No database, external service or background queue is required. Local memory is the initial design; future API/hosting/persistence requires documented decisions and privacy/operational controls. CSV serialization never exports executable/fitted Python objects.
