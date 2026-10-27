@@ -1,7 +1,7 @@
 # Business Sales & Purchase Forecasting System — Development Plan
 
-Status: Architecture-aligned implementation plan; no implementation completion is implied.
-Revised: 2026-10-15
+Status: Local working prototype implemented; verification and remaining release-hardening work are recorded below.
+Revised: 2026-10-16
 Source of truth: [Business_Sales_Purchase_Forecasting_System_Architecture.pdf](Business_Sales_Purchase_Forecasting_System_Architecture.pdf), all 15 pages.
 
 ## 1. Purpose, precedence, and correction
@@ -12,7 +12,7 @@ This revision replaces the earlier plan based on an introductory teaching PDF. T
 
 The architecture specifies a modular monolith, a UI-independent forecasting engine, assisted mapping, transaction-aware preparation, and abstention. Engineering details marked **proposed** below fill gaps in that specification; they are not additional claims about what the PDF requires. If a decision changes, record its rationale and affected requirements/phases here and update agent references. Do not silently widen scope or weaken acceptance gates.
 
-Use this plan for implementation and progress tracking. Follow seven phases corresponding directly to architecture section 13. Read the relevant gates before coding; mark tasks complete only with recorded verification. At the time of this correction the inspected project contains documentation, not application code. Reinspect actual files before future work.
+Use this plan for implementation and progress tracking. Follow seven phases corresponding directly to architecture section 13. Read the relevant gates before coding; mark tasks complete only with recorded verification. The initial correction inspected a documentation-only project. The local prototype is now implemented; inspect actual files and the latest verification record before future work.
 
 ## 2. Architecture requirements and traceability
 
@@ -189,13 +189,13 @@ Document adopted values and rationale in the decision log below. Resolve decisio
 
 **Depends on:** Review of actual architecture, completed for this revision.
 
-- [ ] Translate A1–A11 into acceptance cases and confirm initial use cases/non-goals.
-- [ ] Resolve initial formats/readers, cadence, transaction/summary choices, parsing conventions and resource limits as needed for ingestion.
-- [ ] Define typed contracts, statuses, confirmation gates and module ownership, including orchestration before UI work.
-- [ ] Define selection/adequacy policy configuration and how unresolved thresholds block unsupported reliability claims.
-- [ ] Establish isolated Python environment, package metadata, tested lockfile and executable lint/test/import commands.
-- [ ] Add a minimal importable engine skeleton only as needed; no model/UI side effects on import.
-- [ ] Record risks, decisions and request lifecycle; keep this plan and agent context consistent.
+- [x] Translate A1–A11 into acceptance cases and confirm initial use cases/non-goals.
+- [x] Resolve initial formats/readers, cadence, transaction/summary choices, parsing conventions and resource limits as needed for ingestion.
+- [x] Define typed contracts, statuses, confirmation gates and module ownership, including orchestration before UI work.
+- [x] Define selection/adequacy policy configuration and how unresolved thresholds block unsupported reliability claims.
+- [x] Establish isolated Python environment, package metadata, tested lockfile and executable lint/test/import commands.
+- [x] Add a minimal importable engine skeleton only as needed; no model/UI side effects on import.
+- [x] Record risks, decisions and request lifecycle; keep this plan and agent context consistent.
 
 **Deliverables:** Reproducible foundation, agreed contracts, decision/risk log and acceptance checklist.
 
@@ -205,14 +205,14 @@ Document adopted values and rationale in the decision log below. Resolve decisio
 
 **Depends on:** Phase 1 contracts and environment.
 
-- [ ] Implement bounded CSV and XLSX readers; handle XLS according to the recorded decision. Check bytes, extension/container compatibility, shape and worksheets, including safe failure on corrupt/password-protected/unsupported files.
-- [ ] List workbook sheets and honor explicit selection. Read bounded previews before expensive full processing when supported; post-parse limits alone are not memory protection.
-- [ ] Produce UploadResult with original column identities, warnings, source fingerprint and sheet metadata; handle empty/duplicate headers deliberately.
-- [ ] Normalize names for detection while preserving display names. Configure synonyms/abbreviations for dates, sales and purchases.
-- [ ] Score using name terminology, date parse proportion, numeric coverage, value/type plausibility and neighboring context. Avoid interpreting numeric IDs as dates merely because a parser accepts them.
-- [ ] Return ranked ColumnCandidates, score evidence and alternatives for each role.
-- [ ] Implement low-confidence/close-score confirmation requirements and manual override even for high scores. An ambiguous `Amount` field must not silently become sales or purchase.
-- [ ] Add synthetic CSV/XLSX fixtures with multiple sheets, alternative labels, ambiguous amount fields, separate/combined targets, malformed input and limits.
+- [x] Implement bounded CSV and XLSX readers; handle XLS according to the recorded decision. Check bytes, extension/container compatibility, shape and worksheets, including safe failure on corrupt/password-protected/unsupported files.
+- [x] List workbook sheets and honor explicit selection. Read bounded previews before expensive full processing when supported; post-parse limits alone are not memory protection.
+- [x] Produce UploadResult with original column identities, warnings, source fingerprint and sheet metadata; handle empty/duplicate headers deliberately.
+- [x] Normalize names for detection while preserving display names. Configure synonyms/abbreviations for dates, sales and purchases.
+- [x] Score using name terminology, date parse proportion, numeric coverage, value/type plausibility and neighboring context. Avoid interpreting numeric IDs as dates merely because a parser accepts them.
+- [x] Return ranked ColumnCandidates, score evidence and alternatives for each role.
+- [x] Implement low-confidence/close-score confirmation requirements and manual override even for high scores. An ambiguous `Amount` field must not silently become sales or purchase.
+- [x] Add synthetic CSV/XLSX fixtures with multiple sheets, alternative labels, ambiguous amount fields, separate/combined targets, malformed input and limits.
 
 **Deliverables:** Readers, preview/profile data, candidate ranking and engine-level confirmation metadata, without requiring Streamlit.
 
@@ -222,14 +222,14 @@ Document adopted values and rationale in the decision log below. Resolve decisio
 
 **Depends on:** Phase 2 validated tables and confirmed mapping contracts.
 
-- [ ] Parse dates and monetary numbers under explicit conventions; report invalid/excluded rows and require a documented exclusion policy rather than silently losing records.
-- [ ] Confirm transaction versus summary semantics. Aggregate transactions by selected calendar period/rule; preserve summaries without double-counting.
-- [ ] Define identity-aware duplicate handling; retain legitimate same-date/same-value transactions and valid zero/negative amounts.
-- [ ] Infer candidate cadence and calendar anchors; request confirmation where mixed/irregular. Show before/after row/period counts and transformation provenance.
-- [ ] Represent absent periods separately from known zero activity; record user policy and unresolved reporting gaps.
-- [ ] Implement split-aware preparation interfaces so future evaluation does not learn from held-out values or aggregate across cut points.
-- [ ] Produce SeriesData and diagnostics for history length, regularity, trend, seasonal evidence, variability, gaps, zero/negative values and candidate eligibility.
-- [ ] Gate seasonal/multiplicative methods correctly; any optional decomposition is descriptive and must not claim independent economic-cycle measurement.
+- [x] Parse dates and monetary numbers under explicit conventions; report invalid/excluded rows and require a documented exclusion policy rather than silently losing records.
+- [x] Confirm transaction versus summary semantics. Aggregate transactions by selected calendar period/rule; preserve summaries without double-counting.
+- [x] Define identity-aware duplicate handling; retain legitimate same-date/same-value transactions and valid zero/negative amounts.
+- [x] Infer candidate cadence and calendar anchors; request confirmation where mixed/irregular. Show before/after row/period counts and transformation provenance.
+- [x] Represent absent periods separately from known zero activity; record user policy and unresolved reporting gaps.
+- [x] Implement split-aware preparation interfaces so future evaluation does not learn from held-out values or aggregate across cut points.
+- [x] Produce SeriesData and diagnostics for history length, regularity, trend, seasonal evidence, variability, gaps, zero/negative values and candidate eligibility.
+- [x] Gate seasonal/multiplicative methods correctly; any optional decomposition is descriptive and must not claim independent economic-cycle measurement.
 
 **Deliverables:** Transaction-aware preprocessing, clean/diagnostic series contracts and eligibility analysis.
 
@@ -241,15 +241,15 @@ Document adopted values and rationale in the decision log below. Resolve decisio
 
 Implement incrementally: last-value baseline → optional eligible seasonal baseline → simple exponential smoothing/Holt/Holt-Winters → bounded ARIMA. Use a common eligibility/fit/predict/optional-interval interface.
 
-- [ ] Verify library APIs, input constraints and forecast index behavior against installed versions.
-- [ ] Implement finite predictions or structured candidate errors/warnings; failed candidates do not terminate all evaluation.
-- [ ] Implement a documented single chronological holdout; add bounded rolling-origin folds for sufficient history. Use identical evaluation timestamps/horizons across compared candidates.
-- [ ] Fit learned transformations inside each fold using preceding observations only. Reject missing/invalid evaluation truth and incomparable candidates explicitly.
-- [ ] Compute hand-checkable MAE and RMSE; define error as actual minus prediction. Keep fold-level and aggregate metrics, sample counts and dates. Proposed aggregate: pooled point errors, with fold summaries also visible.
-- [ ] If adding MASE, derive scale from training-only naive errors and report invalid zero denominators. If adding sMAPE, specify zero/near-zero semantics. Do not use MAPE alone.
-- [ ] Apply declared primary metric/tie rule and separately apply configured adequacy/baseline policy. Preserve fit, convergence, weak-quality and no-eligible outcomes.
-- [ ] After accepted selection, refit exact configuration on usable history, generate anchored future dates, and return supported intervals with method/coverage only.
-- [ ] Test refit failure, non-finite output, insufficient history and quality-based abstention as first-class outcomes.
+- [x] Verify library APIs, input constraints and forecast index behavior against installed versions.
+- [x] Implement finite predictions or structured candidate errors/warnings; failed candidates do not terminate all evaluation.
+- [x] Implement a documented single chronological holdout; add bounded rolling-origin folds for sufficient history. Use identical evaluation timestamps/horizons across compared candidates.
+- [x] Fit learned transformations inside each fold using preceding observations only. Reject missing/invalid evaluation truth and incomparable candidates explicitly.
+- [x] Compute hand-checkable MAE and RMSE; define error as actual minus prediction. Keep fold-level and aggregate metrics, sample counts and dates. Proposed aggregate: pooled point errors, with fold summaries also visible.
+- [x] If adding MASE, derive scale from training-only naive errors and report invalid zero denominators. If adding sMAPE, specify zero/near-zero semantics. Do not use MAPE alone.
+- [x] Apply declared primary metric/tie rule and separately apply configured adequacy/baseline policy. Preserve fit, convergence, weak-quality and no-eligible outcomes.
+- [x] After accepted selection, refit exact configuration on usable history, generate anchored future dates, and return supported intervals with method/coverage only.
+- [x] Test refit failure, non-finite output, insufficient history and quality-based abstention as first-class outcomes.
 
 **Deliverables:** Common forecasters, traceable chronological comparisons, configured selection/abstention and dated forecast results.
 
@@ -259,13 +259,13 @@ Implement incrementally: last-value baseline → optional eligible seasonal base
 
 **Depends on:** Phases 2–4. Contract scaffolding may start earlier; completion requires working engine stages.
 
-- [ ] Implement one `service.forecast(request)` boundary, validating mapping confirmations, semantics, policies, horizon and evaluation configuration.
-- [ ] Sequence preparation, analysis, eligibility, evaluation, adequacy, refit and response assembly. No engine dependency on Streamlit session state.
-- [ ] Return explicit confirmation requirements with evidence/options before fitting when critical choices remain unresolved.
-- [ ] Preserve distinct success, caution, insufficient-history, no-eligible, no-reliable and controlled failure outcomes, including comparisons and actionable next steps.
-- [ ] Add stage progress hooks/logging that expose run IDs, stage durations and error categories without raw rows/business values or unsafe tracebacks.
-- [ ] Implement pure CSV serialization and optional JSON run-metadata export. Include target, exact dates, selected configuration, comparison, warnings and provenance in the response/export design.
-- [ ] Verify schema/serialization stability and safe untrusted text handling; do not serialize fitted Python objects or require durable upload storage.
+- [x] Implement one `service.forecast(request)` boundary, validating mapping confirmations, semantics, policies, horizon and evaluation configuration.
+- [x] Sequence preparation, analysis, eligibility, evaluation, adequacy, refit and response assembly. No engine dependency on Streamlit session state.
+- [x] Return explicit confirmation requirements with evidence/options before fitting when critical choices remain unresolved.
+- [x] Preserve distinct success, caution, insufficient-history, no-eligible, no-reliable and controlled failure outcomes, including comparisons and actionable next steps.
+- [x] Add stage progress hooks/logging that expose run IDs, stage durations and error categories without raw rows/business values or unsafe tracebacks.
+- [x] Implement pure CSV serialization and optional JSON run-metadata export. Include target, exact dates, selected configuration, comparison, warnings and provenance in the response/export design.
+- [x] Verify schema/serialization stability and safe untrusted text handling; do not serialize fitted Python objects or require durable upload storage.
 
 **Deliverables:** Independently callable engine and complete typed response, with pure export helpers.
 
@@ -275,14 +275,14 @@ Implement incrementally: last-value baseline → optional eligible seasonal base
 
 **Depends on:** Phase 5 usable service; ingestion/detection preview helpers are already available.
 
-- [ ] Build upload/sheet selection, preview, role-candidate evidence, target selection and manual correction controls.
-- [ ] Collect transaction/summary meaning, aggregation, frequency, gap/duplicate policies, horizon and evaluation settings explicitly.
-- [ ] Show preparation/eligibility diagnostics before fitting; submit all decisions through the engine rather than cleaning/selecting in UI callbacks.
-- [ ] Present stage progress, candidate/fold scores, baseline comparison, forecast, supported uncertainty, warnings, assumptions and no-forecast next steps.
-- [ ] Implement session-scoped reuse/invalidation keyed by source/sheet/target and effective settings. Prevent duplicate runs; reset stale results after changes.
-- [ ] Sales and purchases use distinct run identities. Switching targets must not reuse another target's prepared series, scores or selected model.
-- [ ] Provide readable charts, accessible controls, user-initiated CSV download and session reset; explain memory lifecycle and forecast limitations.
-- [ ] Keep raw data private in local memory, prevent cross-session mutable caches and exclude sensitive data from UI exception details.
+- [x] Build upload/sheet selection, preview, role-candidate evidence, target selection and manual correction controls.
+- [x] Collect transaction/summary meaning, aggregation, frequency, gap/duplicate policies, horizon and evaluation settings explicitly.
+- [x] Show preparation/eligibility diagnostics before fitting; submit all decisions through the engine rather than cleaning/selecting in UI callbacks.
+- [x] Present stage progress, candidate/fold scores, baseline comparison, forecast, supported uncertainty, warnings, assumptions and no-forecast next steps.
+- [x] Implement session-scoped reuse/invalidation keyed by source/sheet/target and effective settings. Prevent duplicate runs; reset stale results after changes.
+- [x] Sales and purchases use distinct run identities. Switching targets must not reuse another target's prepared series, scores or selected model.
+- [x] Provide readable charts, accessible controls, user-initiated CSV download and session reset; explain memory lifecycle and forecast limitations.
+- [x] Keep raw data private in local memory, prevent cross-session mutable caches and exclude sensitive data from UI exception details.
 
 **Deliverables:** A thin UI demonstrating the complete engine workflow.
 
@@ -292,15 +292,15 @@ Implement incrementally: last-value baseline → optional eligible seasonal base
 
 **Depends on:** Phase 6; tests accompany every prior phase.
 
-- [ ] Run unit checks for readers/sheets/limits, detection ambiguity/override, parsing/aggregation/gaps/duplicates, zeros/negatives, eligibility, metrics and forecaster contracts.
-- [ ] Run leakage and index regression checks, including held-out-value perturbation, anchor boundaries, invalid truth and identical folds.
-- [ ] Run complete integration cases from architecture section 11.2: seasonal monthly transactions; daily/weekly nonseasonal data; separate/combined target fields; ambiguous mappings; short/sparse/irregular/poor data; no-forecast outcomes.
-- [ ] Include deterministic synthetic cases demonstrating ARIMA winning and smoothing winning under documented configurations, seeds and tolerances. Do not hardcode winners for arbitrary datasets or game selection logic to satisfy fixtures.
-- [ ] Verify UI smoke path and download parity, candidate/refit failure recovery, reset and state invalidation.
+- [x] Run unit checks for readers/sheets/limits, detection ambiguity/override, parsing/aggregation/gaps/duplicates, zeros/negatives, eligibility, metrics and forecaster contracts.
+- [x] Run leakage and index regression checks, including held-out-value perturbation, anchor boundaries, invalid truth and identical folds.
+- [x] Run complete integration cases from architecture section 11.2: seasonal monthly transactions; daily/weekly nonseasonal data; separate/combined target fields; ambiguous mappings; short/sparse/irregular/poor data; no-forecast outcomes.
+- [x] Include deterministic synthetic cases demonstrating ARIMA winning and smoothing winning under documented configurations, seeds and tolerances. Do not hardcode winners for arbitrary datasets or game selection logic to satisfy fixtures.
+- [x] Verify UI smoke path and download parity, candidate/refit failure recovery, reset and state invalidation.
 - [ ] Measure parse/fit/chart/runtime memory on representative files with recorded hardware/settings; tune/enforce caps and document limits. Do not claim hard cancellation without demonstrated enforcement.
 - [ ] Run actual lint/tests, clean locked installation, independent-engine invocation and local app launch. Record skipped/unavailable checks honestly.
-- [ ] Finish README: formats and XLS decision, sheet flow, mapping evidence, business semantics, setup/run/test commands, metrics/adequacy, intervals, data lifecycle, limits and troubleshooting.
-- [ ] Provide synthetic `sample_data/` with expected confirmation/success/abstention demonstrations; no real client records.
+- [x] Finish README: formats and XLS decision, sheet flow, mapping evidence, business semantics, setup/run/test commands, metrics/adequacy, intervals, data lifecycle, limits and troubleshooting.
+- [x] Provide synthetic `sample_data/` with expected confirmation/success/abstention demonstrations; no real client records.
 - [ ] Version the local release, preserve prior verified release when available, and document rollback and library-upgrade regression checks.
 
 **Deliverables:** Verified local prototype, setup documentation, synthetic demos, evidence and limitations.
@@ -369,3 +369,26 @@ Other values in section 5 remain proposed until chosen and verified; do not trea
 | 2026-10-15 | Planning correction | Replaced DEVELOPMENT_PLAN.md, AGENTS.md and three `.agents` guides using actual architecture | Read all 15 PDF pages; documentation link/consistency checks recorded in completion response | Start Phase 1; resolve formats, contracts, initial policies and environment |
 
 At each implementation session: read AGENTS.md and triggered references, inspect actual files, read the current phase and logs, select the earliest uncompleted dependency, implement a reviewable increment, run relevant checks, and update this log with changed files, versions/settings, evidence, limitations and next action. Do not duplicate status ledgers in `.agents` references.
+
+
+### Implementation decisions — 2026-10-16
+
+- **D003:** CSV/XLSX supported using bounded CSV parsing and read-only openpyxl plus defusedxml. Legacy XLS intentionally excluded; convert to XLSX. Formula cells, macros/external-link archives and encrypted/corrupt workbooks are rejected. No formulas are evaluated.
+- **D004:** All mappings/business semantics require explicit confirmation. Transparent name/coverage scoring uses 0.70 threshold and 0.12 close-score margin to show ambiguity; override is always available. No NLP dependency.
+- **D005:** Implement daily, Monday/Sunday week-end, month-start/end cadences. Transactions sum/mean explicitly; summaries preserve aligned periods with explicit duplicate sum/mean/reject. Equal legitimate transactions remain. Date and numeric conventions are explicit; timezone-bearing data is rejected.
+- **D006:** Unknown gaps block by default; user-confirmed zero activity is supported. Causal forward fill is training-only, at most 3 periods. Invalid monetary exclusions retain unknown periods so they cannot become fabricated zero validation truth. Monetary magnitude cap is 1e15.
+- **D007:** Six model families/configurations, additive smoothing and bounded ARIMA. Single or expanding-origin nonoverlapping folds; pooled MAE/RMSE, alphabetical tie rule. Primary metric default MAE. Adequacy requires no worse than naive plus error / first-training mean absolute level <= user tolerance (default 0.5); zero scale requires zero error. This is an exploratory rule, not universal business reliability. Baseline selection is explicitly configurable.
+- **D008:** ARIMA supplies verified 95% model-based intervals; smoothing/baselines return points and a warning. Convergence failures excluded; other warning categories visible. Refit failure returns no forecast.
+- **D009:** Policy caps adopted as in README, plus 50 MiB expanded XLSX and 2,000 ZIP members. Benchmarks sample the limits but do not certify maximum combinations. Synchronous execution; no hard timeout. Use existing user venv for every install.
+- **D010:** Implement `contracts.py`, `config.py`, `exports.py` support modules. Streamlit native charts are sufficient; no additional plotting/NLP service. Engine is independently callable and exports derive from response values.
+
+### Implementation progress — 2026-10-16
+
+| Phase | Work / evidence | Remaining |
+| --- | --- | --- |
+| 1–3 | Implemented contracts, reproducible metadata/lock, readers, detection, confirmation, business preprocessing and descriptive diagnostics | Broader real-world format calibration remains future work |
+| 4–5 | Implemented adapters, chronological comparisons, adequacy, abstention, refit, typed service and plain-data exports; tested without Streamlit | No production claims |
+| 6 | Implemented guided UI, stage progress, explicit confirmations, target-safe invalidation and downloads; AppTest and browser startup verified | Manual full upload/download and accessibility audit not claimed |
+| 7 | 50 tests pass; lint/format, pip consistency and wheel build checked; synthetic benchmark and README/VERIFICATION.md added | Fresh separate-environment install, full worst-case benchmarking, broader platforms and formal versioned release remain open |
+
+Actual setup/run/test commands are in README.md. Tested versions are locked in requirements.lock. VERIFICATION.md records measured evidence and limitations; it is a report, while this plan remains the progress/decision ledger. No production release/hosting is claimed. Use the existing venv; no additional environment was created.

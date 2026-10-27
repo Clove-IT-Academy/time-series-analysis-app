@@ -4,7 +4,7 @@ Authority: [system architecture](../Business_Sales_Purchase_Forecasting_System_A
 
 ## Module ownership
 
-Package paths are relative to `src/forecasting_app/`, as specified in the architecture. Paths remain planned until implemented.
+Package paths are relative to `src/forecasting_app/`, as specified in the architecture. These modules are implemented; inspect actual contracts/code and the plan's implementation decisions before changing them.
 
 | Path | Owner of behavior |
 | --- | --- |

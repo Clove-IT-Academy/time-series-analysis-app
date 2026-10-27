@@ -15,3 +15,5 @@ local_media/
 *.mov
 *.mp4
 *.webm
+.ruff_cache/
+*.log

@@ -6,7 +6,7 @@
 - Follow [Business_Sales_Purchase_Forecasting_System_Architecture.pdf](Business_Sales_Purchase_Forecasting_System_Architecture.pdf), all 15 pages, and the architecture-aligned [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md). Preserve initial scope, module ownership, contracts, seven phases and acceptance gates. Record justified changes rather than silently diverging.
 - These instructions replace the earlier teaching-notes-based context. The actual architecture requires Excel ingestion, assisted mapping, transaction-aware preparation, a service boundary and abstention. Do not revive CSV-only scope, manual-only mapping, the `time_series_app` layout or a mandatory separate final-test UI stage.
 - Distinguish architecture requirements from proposed implementation defaults. Scores, reader support, adequacy thresholds, versions and resource caps require decisions/tests; do not present them as user-approved, statistically calibrated or benchmarked facts.
-- Inspect actual files and checks at session start. This revision changes documentation, not application implementation. Do not treat planned artifacts or completed planning as completed development.
+- Inspect actual files and checks at session start. The local prototype is implemented. Read README.md, VERIFICATION.md and the plan's latest implementation log for actual evidence and remaining release work; do not assume every release gate is complete.
 
 ## Read context efficiently
 
